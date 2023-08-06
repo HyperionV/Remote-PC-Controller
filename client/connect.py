@@ -8,6 +8,7 @@ SERVER = input("Enter host IP: ")
 FORMAT = 'utf-8'
 DISCONNECT_MSG = "!DISCONNECT"
 SCREENSHOT_MSG = "!SCREENSHOT"
+SHUTDOWN_MSG = "!SHUTDOWN"
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((SERVER, PORT))
@@ -42,8 +43,8 @@ def display_screenshot(image_bytes):
 def start():
     while True:
         msg = input("Enter a message (type '!SCREENSHOT' to request a screenshot or '!DISCONNECT' to quit): ")
-        if msg == DISCONNECT_MSG:
-            send(DISCONNECT_MSG)
+        if msg == DISCONNECT_MSG or msg == SHUTDOWN_MSG:
+            send(msg)
             break
         elif msg == SCREENSHOT_MSG:
             send(SCREENSHOT_MSG)

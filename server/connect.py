@@ -1,16 +1,21 @@
 import socket
 import threading
 import pyautogui
-from PIL import Image
 import io
 import os
+import winreg
 
 HEADER = 64
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 FORMAT = 'utf-8'
+
 DISCONNECT_MSG = "!DISCONNECT"
 SCREENSHOT_MSG = "!SCREENSHOT"
+SHUTDOWN_MSG = "!SHUTDOWN"
+REGISTRY_MSG = "!REGISTRY"
+KEYLOG_START_MSG = "!KEYLOG_START"
+KEYLOG_END_MSG = "!KEYLOG_END"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((SERVER, PORT))
@@ -36,6 +41,10 @@ def handle_client(connection, address):
                 break
             elif msg == SCREENSHOT_MSG:
                 sendScreenShot(connection, address)
+            elif msg == SHUTDOWN_MSG:
+                os.system("shutdown /s /t 1")
+            elif msg == REGISTRY_MSG:
+                pass
             else:
                 print(f"[{address}] {msg}")
     print()
