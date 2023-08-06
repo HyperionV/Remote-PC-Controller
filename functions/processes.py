@@ -12,9 +12,9 @@ def getProcessList():
     for proc in psutil.process_iter(['pid', 'name', 'num_threads']):
         try:
             process_info = {
-                'pid': proc.info['pid'],
-                'name': proc.info['name'],
-                'threads': proc.info['num_threads']
+                'pid': proc.pid,
+                'name': proc.name,
+                'threads': proc.num_threads
             }
             process_list.append(process_info)
         except psutil.NoSuchProcess:
