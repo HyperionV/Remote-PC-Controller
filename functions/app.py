@@ -1,64 +1,44 @@
 import subprocess
-import win32gui
 import re
 
 def getAppList():
-    """Returns a list of all running applications on the system.
-
-    Returns:
-        list: A list of dictionaries containing the application description, id, path, and number of threads.
-    """
+    cmd = ['powershell', 'gps | where {$_.MainWindowTitle } | select Description,Id,Path,@{Name=\'Threads\';Expression={(Get-Process -Id $_.Id).Threads.Count}}']
+    try:
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, text=True, check=True)
+        process_list = []
+        
+        for line in proc.stdout.splitlines():
+            line = line.strip()
+            if line:
+                try:
+                    description, app_id, path, threads = re.split(r'\s+', line, maxsplit=3)
+                    process_list.append({
+                        'description': description,
+                        'app_id': int(app_id),
+                        'path': path,
+                        'threads': int(threads)
+                    })
+                except Exception as e:
+                    print(f"Error processing line: {line} - {e}")
+        
+        return process_list
     
-    cmd = 'powershell "gps | where {$_.MainWindowTitle } | select Description,Id,Path,@{Name=\'Threads\';Expression={(Get-Process -Id $_.Id).Threads.Count}}"'
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        print("Error executing PowerShell command:", e)
 
-    process_list = []
-
-    for line in proc.stdout.readlines():
-        # print(repr(line))
-        if not line.decode().isspace():
-            try:
-                input_string = line.decode()
-                # print(input_string)
-
-                # Define a regular expression pattern to match the information
-                pattern = r'(.+?)\s+(\d+)\s+(.+)\s+(\d+)'
-
-                # Use the regular expression to match the pattern in the input string
-                match = re.match(pattern, input_string)
-
-                if match:
-                    description = match.group(1)
-                    app_id = match.group(2)
-                    path = match.group(3)
-                    threads = match.group(4)
-                    
-                    result_list = [description.strip(), app_id, path.strip(), threads]
-                    
-                    process_list.append(result_list)
-                    # print(result_list)
-            except:
-                pass    
-    return process_list     
-    
 def killApp(app_id):
-    """Kills an application based on the application id.
+    cmd = f'powershell "Stop-Process -Id {app_id}"'
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print("Error executing PowerShell command:", e)
 
-    Args:
-        app_id (int): The application id.
-    """
-    cmd = 'powershell "Stop-Process -Id ' + str(app_id) + '"'
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    proc.wait()
-    # print(proc.stdout.read())
+if __name__ == "__main__":
+    # for app in getAppList():
+    #     print(app)
     
-    
-for i in getAppList():
-    print(i)
-
-killApp(int(input("Enter the app id to kill: ")))
-
-
-
-
-
+    try:
+        app_id_to_kill = int(input("Enter the app id to kill: "))
+        killApp(app_id_to_kill)
+    except ValueError:
+        print("Invalid input. Please enter a valid numeric app id.")

