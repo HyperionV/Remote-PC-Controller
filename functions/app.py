@@ -9,17 +9,28 @@ def getAppList():
         
         for line in proc.stdout.splitlines():
             line = line.strip()
+            print(line)
+
+            # Define a regular expression pattern to match the information
+            pattern = r'(.+?)\s+(\d+)\s+(.+)\s+(\d+)'
+            match = re.match(pattern, line)
+            
             if line:
-                try:
-                    description, app_id, path, threads = re.split(r'\s+', line, maxsplit=3)
-                    process_list.append({
+                if match:
+                    description = match.group(1)
+                    app_id = match.group(2)
+                    path = match.group(3)
+                    threads = match.group(4)
+                    
+                    result_dict = {
                         'description': description,
-                        'app_id': int(app_id),
+                        'app_id': app_id,
                         'path': path,
-                        'threads': int(threads)
-                    })
-                except Exception as e:
-                    print(f"Error processing line: {line} - {e}")
+                        'threads': threads
+                    }
+                    process_list.append(result_dict)
+                else:
+                    print("No match found in the input string.")
         
         return process_list
     
@@ -34,8 +45,9 @@ def killApp(app_id):
         print("Error executing PowerShell command:", e)
 
 if __name__ == "__main__":
-    # for app in getAppList():
-    #     print(app)
+    app_list = getAppList()
+    for app in app_list:
+        print(app)
     
     try:
         app_id_to_kill = int(input("Enter the app id to kill: "))
