@@ -77,20 +77,26 @@ def getAppList():
     
     for line in proc.stdout.splitlines():
         line = line.strip()
+        print(line)
+        pattern = r'(.+?)\s+(\d+)\s+(.+)\s+(\d+)'
+        match = re.match(pattern, line)
         if line:
-            try:
-                description, app_id, path, threads = re.split(r'\s+', line, maxsplit=3)
-                process_list.append({
+            if match:
+                description = match.group(1)
+                app_id = match.group(2)
+                path = match.group(3)
+                threads = match.group(4)
+                
+                result_dict = {
                     'description': description,
                     'app_id': app_id,
                     'path': path,
                     'threads': threads
-                })
-            except Exception as e:
-                print(f"Error processing line: {line} - {e}")
-    
+                }
+                process_list.append(result_dict)
+            else:
+                pass
     return (process_list, len(process_list))
-
 
 def killApp(app_id, connection):
     cmd = f'powershell "Stop-Process -Id {app_id}"'

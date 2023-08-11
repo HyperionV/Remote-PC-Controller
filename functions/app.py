@@ -10,8 +10,6 @@ def getAppList():
         for line in proc.stdout.splitlines():
             line = line.strip()
             print(line)
-
-            # Define a regular expression pattern to match the information
             pattern = r'(.+?)\s+(\d+)\s+(.+)\s+(\d+)'
             match = re.match(pattern, line)
             
@@ -46,8 +44,8 @@ def killApp(app_id):
 
 if __name__ == "__main__":
     app_list = getAppList()
-    for app in app_list:
-        print(app)
+    # for app in app_list:
+    #     print(app)
     
     try:
         app_id_to_kill = int(input("Enter the app id to kill: "))

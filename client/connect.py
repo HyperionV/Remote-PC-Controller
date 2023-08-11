@@ -60,7 +60,7 @@ def receiveAppList():
         item = []
         for j in range(4):
             item.append(receive())
-        applist.append({"description": item[0], "app_id": item[1], "path": item[2], "thread": item[3]})
+        applist.append({"description": item[0], "app_id": item[1], "path": (item[2]), "thread": item[3]})
     print("Applist received")
     for item in applist:
         print(item)
