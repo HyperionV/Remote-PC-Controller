@@ -50,3 +50,5 @@ def startProcess(process_name):
         return True
     except:
         return False
+    
+print(getProcessList)
