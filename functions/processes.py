@@ -16,7 +16,7 @@ def getProcessList():
             #     'name': proc.name
             #     'threads': proc.num_threads
             # }
-            process_list.append(proc.info)
+            process_list.append(proc.info) # type: ignore
         except psutil.NoSuchProcess:
             pass
     return process_list 
@@ -52,3 +52,5 @@ def startProcess(process_name):
         return False
     
 print(getProcessList())
+print(killProcess(20136))
+# print(getProcessList())

