@@ -137,17 +137,22 @@ def connect(address):
     except:
         print(f'Cannot connect to server {address}\n')
         return False
-    
-while True:
+
+def tryConnect(ip):
     while True:
-        SERVER = input('Enter host IP: ')
-        if connect(SERVER):
+        if connect(ip):
             break
-    if SERVER == 'exit':
-        break
-    start()
-    print(f'Disconnected from host {SERVER}\n')
-    client.close()
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+           
+# while True:
+#     while True:
+#         SERVER = input('Enter host IP: ')
+#         if connect(SERVER):
+#             break
+#     if SERVER == 'exit':
+#         break
+#     start()
+#     print(f'Disconnected from host {SERVER}\n')
+#     client.close()
+#     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 client.close()
