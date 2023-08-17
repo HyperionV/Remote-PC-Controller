@@ -11,12 +11,12 @@ def getProcessList():
     process_list = []
     for proc in psutil.process_iter(['pid', 'name', 'num_threads']):
         try:
-            process_info = {
-                'pid': proc.pid,
-                'name': proc.name,
-                'threads': proc.num_threads
-            }
-            process_list.append(process_info)
+            # process_info = {
+            #     'pid': proc.info['name']
+            #     'name': proc.name
+            #     'threads': proc.num_threads
+            # }
+            process_list.append(proc.info) # type: ignore
         except psutil.NoSuchProcess:
             pass
     return process_list 
@@ -50,3 +50,7 @@ def startProcess(process_name):
         return True
     except:
         return False
+    
+print(getProcessList())
+print(killProcess(20136))
+# print(getProcessList())

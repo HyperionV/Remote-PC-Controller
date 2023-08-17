@@ -109,3 +109,47 @@ def deleteKey(path, delKey):
         return True
     except:
         return False
+
+def analyzeRegistry(msg):
+    content = msg.split(',')
+    if content[0] == 'GETVAL':
+        returnVal = getValue(content[1], content[2])
+        if returnVal:
+            return f'The value at path {content[1]} is {returnVal}'
+        else: 
+            return f'Cannot get value at path {content[1]}'
+    elif content[0] == 'SETVAL':
+        returnVal = setValue(content[1], content[2], content[3], content[4])
+        if returnVal:
+            return f'Value {content[2]} has been set to {content[4]}'
+        else:
+            return f'Error while setting value {content[2]}'
+    elif content[0] == 'CREATEVAL':
+        returnVal = createValue(content[1], content[2], content[3], content[4])
+        if returnVal:
+            return f'Created value {content[2]}'
+        else:
+            return f'Error while creating value {content[2]}'
+    elif content[0] == 'DELETEVAL':
+        returnVal = deleteValue(content[1], content[2])
+        if returnVal:
+            return f'Deleted value {content[2]}'
+        else:
+            return f'Error while deleting value {content[2]}'
+    elif content[0] == 'CREATEKEY':
+        returnVal = createKey(content[1], content[2])
+        if returnVal:
+            return f'Created key {content[2]}'
+        else:
+            return f'Error while deleting key {content[2]}'
+    elif content[0] == 'DELETEKEY':
+        returnVal = deleteKey(content[1], content[2])
+        if returnVal:
+            return f'Deleted key {content[2]}'
+        else:
+            return f'Error while deleting key {content[2]}'
+    else:
+        return 'Invalid command'
+    
+
+print(createKey(r'', 'newKey'))
