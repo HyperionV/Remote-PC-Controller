@@ -81,8 +81,8 @@ def receiveAppList():
         for j in range(4):
             item.append(receive())
         applist.append({"description": item[0], "app_id": item[1], "path": (item[2]), "thread": item[3]})
-    # for item in applist:
-    #     print(item)
+    for item in applist:
+        print(item)
     return applist
 
 def receiveProcessList():
@@ -140,9 +140,7 @@ def connect(address):
         return False
 
 def tryConnect(ip):
-    while True:
-        if connect(ip):
-            break
+    connect(ip)
            
 # while True:
 #     while True:
