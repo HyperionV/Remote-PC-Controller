@@ -95,6 +95,7 @@ def receiveProcessList():
         process_list.append({"pid": item[0], "name": item[1], "thread": (item[2])})
     for item in process_list:
         print(item)
+    return process_list
 
 def start():
     while True:

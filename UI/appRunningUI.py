@@ -125,7 +125,6 @@ def clearList(textFrame, appLabel):
     appLabel.clear()
 
 def prototype():
-    print("owo")
     appLabel = []
     popup = tk.Toplevel()
     popup.title("App running")

@@ -175,9 +175,12 @@ def killProcess(pid):
 
 def startProcess(process_name):
     try:
-        subprocess.Popen(process_name, shell=True)
+        # Start the executable app in a non-blocking way
+        subprocess.Popen([process_name])
         return True
-    except:
+
+    except FileNotFoundError:
+        print(f"Could not find the executable at {process_name}")
         return False
 
 def analyzeProcess(msg, connection):
@@ -191,7 +194,7 @@ def analyzeProcess(msg, connection):
             send(connection, str(item["threads"]))
     elif content[0] == "STARTPROCESS":
         returnVal = startProcess(content[1])
-        if returnVal:
+        if returnVal == True:
             send(connection, f'Started process {content[1]}')
         else:
             send(connection, f'Error while starting process {content[1]}')

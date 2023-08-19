@@ -3,6 +3,7 @@ import tkinter as tk
 # sys.path.append('../')
 from client import connect as cc
 from UI import appRunningUI as appui
+from UI import processRunningUI as prui
 from tkinter import messagebox
 
 DISCONNECT_MSG = "!DISCONNECT"
@@ -82,7 +83,7 @@ emptyLabel_c.grid(row = 2)
 
 appRunningButton = tk.Button(root, text = "App Running", command = appui.prototype, height = 3)
 appRunningButton.grid(row = 3, column = 1, columnspan = 3, sticky = "ew", padx = 6)
-processRunningButton = tk.Button(root, text = "Process Running", height = 3)
+processRunningButton = tk.Button(root, text = "Process Running", command = prui.prototype, height = 3)
 processRunningButton.grid(row = 3, column = 4, columnspan = 3, sticky = "ew", padx = 6)
 
 keystrokeButton = tk.Button(root, text = "Keystroke", height = 3)
