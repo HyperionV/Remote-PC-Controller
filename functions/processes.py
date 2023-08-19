@@ -46,11 +46,10 @@ def startProcess(process_name):
         boolean: True if the process was started, False otherwise.
     """    
     try:
-        subprocess.Popen(process_name, shell=True)
+        # Start the executable app in a non-blocking way
+        subprocess.Popen([process_name])
         return True
-    except:
+
+    except FileNotFoundError:
+        print(f"Could not find the executable at {process_name}")
         return False
-    
-print(getProcessList())
-print(killProcess(20136))
-# print(getProcessList())
