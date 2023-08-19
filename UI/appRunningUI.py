@@ -1,6 +1,7 @@
 from functools import partial
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import sys
 sys.path.append('../')
 from client import connect as cc
@@ -56,20 +57,72 @@ def getAppList(textFrame, appLabel):
         
         cnt = cnt + 1
 
+def killApp(textBox, popup, textFrame, appLabel, canvas):
+    ID = str(textBox.get())
+    cc.send("!KILLAPP")
+    cc.send(ID)
+    print(cc.receive())
+    popup.destroy()
+    messagebox.showinfo("Kill app", "Application with id "+ID+" was terminated")
+    updateAppList(textFrame, appLabel, canvas)
+
+def killAppPopup(textFrame, appLabel, canvas):
+    popup = tk.Toplevel()
+    popup_width = 280
+    popup_height = 50
+    popup.geometry(f"{popup_width}x{popup_height}")
+
+    textBox = tk.Entry(popup, width = 30)
+    textBox.grid(row = 0, column = 0, padx = 11, pady = 15)
+    connectButton = tk.Button(popup, text = "Kill", width = 7, command = partial(killApp, textBox, popup, textFrame, appLabel, canvas), height = 1)
+    connectButton.grid(row = 0, column = 1, columnspan = 2, padx = 4, pady = 15)
+
+    popup.mainloop()
+
+
+def startApp(textBox, popup, textFrame, appLabel, canvas):
+    appName = str(textBox.get())
+    cc.send("!PROCESS")
+    cc.send("STARTPROCESS," + appName)
+    notif = cc.receive()
+    print("ERROR MESSAGE:", notif)
+    if notif[0] == 'E':
+        messagebox.showerror("Error", "Program not found")
+    else:
+        messagebox.showinfo("Notice", "Program is turned on")
+    popup.destroy()
+    updateAppList(textFrame, appLabel, canvas)
+
+def startAppPopup(textFrame, appLabel, canvas):
+    popup = tk.Toplevel()
+    popup_width = 280
+    popup_height = 50
+    popup.geometry(f"{popup_width}x{popup_height}")
+
+    textBox = tk.Entry(popup, width = 30)
+    textBox.grid(row = 0, column = 0, padx = 11, pady = 15)
+    connectButton = tk.Button(popup, text = "Start", width = 7, command = partial(startApp, textBox, popup, textFrame, appLabel, canvas), height = 1)
+    connectButton.grid(row = 0, column = 1, columnspan = 2, padx = 4, pady = 15)
+
+    popup.mainloop()
+
 def updateCanvas(canvas, textFrame):
     canvas.config(scrollregion=canvas.bbox("all"))
     canvas.update()
     textFrame.update()
     
 def updateAppList(textFrame, appLabel, canvas):
+    clearList(textFrame, appLabel)
+    getAppList(textFrame, appLabel)
+    updateCanvas(canvas, textFrame)
+
+def clearList(textFrame, appLabel):
     for label in appLabel:
         for i in label:
             i.destroy()
+    for i in textFrame.winfo_children():
+        i.destroy()
     appLabel.clear()
-    getAppList(textFrame, appLabel)
-    updateCanvas(canvas, textFrame)
-    
-
 
 def prototype():
     print("owo")
@@ -80,7 +133,7 @@ def prototype():
     popup_height = 440
     popup.geometry(f"{popup_width}x{popup_height}")
 
-    labelString = "label"
+    labelString = ""
 
     emptyLabelsCol = []
     emptyLabelsRow = []
@@ -90,7 +143,7 @@ def prototype():
         emptyLabelsCol.append(cur_label)
         cur_label.grid(row = 0, column = i)
     for i in range(16):
-        cur_label = tk.Label(popup, height = 1, width = 1, text = f"{i}")
+        cur_label = tk.Label(popup, height = 1, width = 1, text = "")
         emptyLabelsRow.append(cur_label)
         cur_label.grid(row = i, column = 0)
     emptyLabelsCol[0].update()
@@ -107,7 +160,7 @@ def prototype():
     # textFrame = textFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 15, sticky = "nsew")
 
     # Create a frame for the canvas with non-zero row&column weights
-    frame_canvas = tk.Frame(popup)
+    frame_canvas = tk.Frame(popup, relief = "solid", borderwidth = 1)
     frame_canvas.grid(row = 4, column = 1, columnspan = 12, rowspan = 13, sticky = "nsew")
     frame_canvas.grid_rowconfigure(0, weight=1)
     frame_canvas.grid_columnconfigure(0, weight=1)
@@ -115,7 +168,7 @@ def prototype():
     frame_canvas.grid_propagate(False)
 
     # Add a canvas in that frame
-    canvas = tk.Canvas(frame_canvas, bg="yellow")
+    canvas = tk.Canvas(frame_canvas, bg="white")
     canvas.grid(row=0, column=0, sticky="news")
 
     # Link a scrollbar to the canvas
@@ -123,7 +176,7 @@ def prototype():
     vsb.grid(row=0, column=1, sticky='ns')
     canvas.configure(yscrollcommand=vsb.set)
 
-    textFrame = ttk.Frame(canvas, borderwidth = 1, relief = "solid")
+    textFrame = ttk.Frame(canvas, borderwidth = 1, relief = "flat")
     textFrame.grid(row = 0, column = 0, columnspan = 12, rowspan = 13, sticky = "nsew")
     canvas.create_window((0, 0), window=textFrame, anchor='nw')
     
@@ -136,13 +189,13 @@ def prototype():
     # titleFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 1, sticky = "nsew")
 
     buttonStyle = "groove"
-    killButton = tk.Button(popup, text = "Kill", height = 3, relief = buttonStyle)
+    killButton = tk.Button(popup, text = "Kill", height = 3, command = partial(killAppPopup, textFrame, appLabel, canvas), relief = buttonStyle)
     killButton.grid(row = 1, column = 1, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
-    viewButton = tk.Button(popup, text = "View", height = 3, command = partial(updateAppList,textFrame,appLabel,canvas), relief = buttonStyle)
+    viewButton = tk.Button(popup, text = "View", height = 3, command = partial(updateAppList, textFrame, appLabel, canvas), relief = buttonStyle)
     viewButton.grid(row = 1, column = 4, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
-    eraseButton = tk.Button(popup, text = "Erase", height = 3, relief = buttonStyle)
+    eraseButton = tk.Button(popup, text = "Erase", height = 3, command = partial(clearList, textFrame, appLabel), relief = buttonStyle)
     eraseButton.grid(row = 1, column = 7, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
-    startButton = tk.Button(popup, text = "Start", height = 3, relief = buttonStyle)
+    startButton = tk.Button(popup, text = "Start", height = 3, command = partial(startAppPopup, textFrame, appLabel, canvas), relief = buttonStyle)
     startButton.grid(row = 1, column = 10, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
 
     nameApp = "Application Name"
