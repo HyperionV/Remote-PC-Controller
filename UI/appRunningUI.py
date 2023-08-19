@@ -24,6 +24,8 @@ def getAppList(textFrame, appLabel):
     # emptyLabel = tk.Label(textFrame, height = 1)
     # emptyLabel.grid(row = 0)
 
+    print(appList)
+    
     emptyLabelsCol = []
     labelString = ""
     for i in range(1, 10):
@@ -53,6 +55,21 @@ def getAppList(textFrame, appLabel):
         appLabel.append(curLabel)
         
         cnt = cnt + 1
+
+def updateCanvas(canvas, textFrame):
+    canvas.config(scrollregion=canvas.bbox("all"))
+    canvas.update()
+    textFrame.update()
+    
+def updateAppList(textFrame, appLabel, canvas):
+    for label in appLabel:
+        for i in label:
+            i.destroy()
+    appLabel.clear()
+    getAppList(textFrame, appLabel)
+    updateCanvas(canvas, textFrame)
+    
+
 
 def prototype():
     print("owo")
@@ -121,7 +138,7 @@ def prototype():
     buttonStyle = "groove"
     killButton = tk.Button(popup, text = "Kill", height = 3, relief = buttonStyle)
     killButton.grid(row = 1, column = 1, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
-    viewButton = tk.Button(popup, text = "View", height = 3, command = partial(getAppList, textFrame, appLabel), relief = buttonStyle)
+    viewButton = tk.Button(popup, text = "View", height = 3, command = partial(updateAppList,textFrame,appLabel,canvas), relief = buttonStyle)
     viewButton.grid(row = 1, column = 4, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
     eraseButton = tk.Button(popup, text = "Erase", height = 3, relief = buttonStyle)
     eraseButton.grid(row = 1, column = 7, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
