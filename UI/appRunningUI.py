@@ -5,12 +5,17 @@ import sys
 sys.path.append('../')
 from client import connect as cc
 
-def resizeLabel(textFrame, label, width):
-    textFrame.update()
-    print(label.winfo_width(), width)
+def resizeLabel(label, width):
+    label.update()
+    if(label.winfo_width() <= width):
+        return
     while(label.winfo_width() > width):
         text = label.cget("text")
-        label.config(text[:-1])
+        label.config(text = text[:-1])
+        label.update()
+    text = label.cget("text")
+    label.config(text = text[:-3] + "...")
+    label.update()
 
 def getAppList(textFrame, appLabel):
     cc.send("!GETAPP")
@@ -23,13 +28,15 @@ def getAppList(textFrame, appLabel):
         appID = app['app_id']
         thread = app['thread']
 
-        curLabelName = tk.Label(textFrame, text = description, bg = "white", width=12)
+        curLabelName = tk.Label(textFrame, text = description, bg = "white")
         curLabelName.grid(row = cnt, column = 0, sticky = "w")
-        # resizeLabel(textFrame,curLabelName,12)
-        # curLabelID = tk.Label(textFrame, text = appID, bg = "white", height = 1, width = 12)
-        # curLabelID.grid(row = cnt, column = 1, sticky = "ew")
-        # curLabelThread = tk.Label(textFrame, text = thread, bg = "white", height = 1, width = 12)
-        # curLabelThread.grid(row = cnt, column = 2, sticky = "ew")
+        resizeLabel(curLabelName,27*4)
+        curLabelID = tk.Label(textFrame, text = appID, bg = "white", height = 1, width = 12)
+        curLabelID.grid(row = cnt, column = 1, sticky = "ew")
+        resizeLabel(curLabelID,27*4)
+        curLabelThread = tk.Label(textFrame, text = thread, bg = "white", height = 1, width = 12)
+        curLabelThread.grid(row = cnt, column = 2, sticky = "ew")
+        resizeLabel(curLabelThread,27*4)
 
         curLabel = []
         curLabel.append(curLabelName)
@@ -61,7 +68,8 @@ def prototype():
         cur_label = tk.Label(popup, height = 1, width = 1, text = f"{i}")
         emptyLabelsRow.append(cur_label)
         cur_label.grid(row = i, column = 0)
-
+    emptyLabelsCol[0].update()
+    print(emptyLabelsCol[0].winfo_width())
     # Initialize style
     s = ttk.Style()
     # Create style used by default for all Frames
