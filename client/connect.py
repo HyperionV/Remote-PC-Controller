@@ -81,8 +81,9 @@ def receiveAppList():
         for j in range(4):
             item.append(receive())
         applist.append({"description": item[0], "app_id": item[1], "path": (item[2]), "thread": item[3]})
-    for item in applist:
-        print(item)
+    # for item in applist:
+    #     print(item)
+    return applist
 
 def receiveProcessList():
     process_list_len = int(receive())
@@ -155,4 +156,4 @@ def tryConnect(ip):
 #     client.close()
 #     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-client.close()
+# client.close()

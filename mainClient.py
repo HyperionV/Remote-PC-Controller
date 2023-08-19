@@ -1,19 +1,30 @@
 import tkinter as tk
-import processRunningUI
+# import sys
+# sys.path.append('../')
+from client import connect as cc
+from UI import appRunningUI as appui
 
-def on_button_click():
-    entered_text = textBox.get()
-    print("Entered text:", entered_text)
+def insert_IP():
+    IP = str(textBox.get())
+    cc.tryConnect(IP)
 
 def exit_window():
     root.destroy()
     return 0
-    
+
+# def openAppRunningWindow():
+#     popup = tk.Toplevel()
+#     popup_width = 496
+#     popup_height = 279
+#     popup.geometry(f"{popup_width}x{popup_height}")
+
+    # popup.mainloop()
+
 root = tk.Tk()
 root.title("Client")
 
-window_width = 496
-window_height = 279
+window_width = 496 
+window_height = 279 
 
 root.geometry(f"{window_width}x{window_height}")
 
@@ -42,13 +53,13 @@ textBoxLabel.grid(row = 1, column = 1)
 textBox = tk.Entry(root)
 textBox.grid(row = 1, column = 2, columnspan = 3, sticky = "ew")
 
-connectButton = tk.Button(root, text = "Connect", command = on_button_click, height = 1)
+connectButton = tk.Button(root, text = "Connect", command = insert_IP, height = 1)
 connectButton.grid(row = 1, column = 5, columnspan = 2, sticky = "ew", padx = 4)
 
 emptyLabel_c = tk.Label(root, width = 1)
 emptyLabel_c.grid(row = 2)
 
-appRunningButton = tk.Button(root, text = "App Running", height = 3)
+appRunningButton = tk.Button(root, text = "App Running", command = appui.prototype, height = 3)
 appRunningButton.grid(row = 3, column = 1, columnspan = 3, sticky = "ew", padx = 6)
 processRunningButton = tk.Button(root, text = "Process Running", height = 3)
 processRunningButton.grid(row = 3, column = 4, columnspan = 3, sticky = "ew", padx = 6)
