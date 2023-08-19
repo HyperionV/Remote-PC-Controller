@@ -140,7 +140,7 @@ def connect(address):
         return False
 
 def tryConnect(ip):
-    connect(ip)
+    return connect(ip)
            
 # while True:
 #     while True:

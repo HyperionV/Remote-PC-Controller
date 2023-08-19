@@ -3,12 +3,33 @@ import tkinter as tk
 # sys.path.append('../')
 from client import connect as cc
 from UI import appRunningUI as appui
+from tkinter import messagebox
+
+DISCONNECT_MSG = "!DISCONNECT"
+SCREENSHOT_MSG = "!SCREENSHOT"
+SHUTDOWN_MSG = "!SHUTDOWN"
+KEYLOG_MSG = "!KEYLOG"
+GETAPP_MSG = "!GETAPP"
+KILLAPP_MSG = "!KILLAPP"
+REGISTRY_MSG = "!REGISTRY"
+PROCESS_MSG = "!PROCESS"
+
+def errorConnect():
+    messagebox.showerror("Error", "Error connect to server")
 
 def insert_IP():
     IP = str(textBox.get())
-    cc.tryConnect(IP)
+    # messagebox.showinfo("Notice", "Connecting to server ...")
+    if cc.tryConnect(IP) == False:
+        print("error connect\n")
+        errorConnect()
+        return
+    else:
+        messagebox.showinfo("Notice", "Connection established!")
+        
 
 def exit_window():
+    cc.send(DISCONNECT_MSG)
     root.destroy()
     return 0
 
