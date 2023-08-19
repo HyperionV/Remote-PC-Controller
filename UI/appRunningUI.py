@@ -23,6 +23,14 @@ def getAppList(textFrame, appLabel):
     cnt = 0
     # emptyLabel = tk.Label(textFrame, height = 1)
     # emptyLabel.grid(row = 0)
+
+    emptyLabelsCol = []
+    labelString = ""
+    for i in range(1, 10):
+        cur_label = tk.Label(textFrame, height = 1, width = 3, text = labelString, bg = "white")
+        emptyLabelsCol.append(cur_label)
+        cur_label.grid(row = 0, column = i)
+
     for app in appList:
         description = app['description']
         appID = app['app_id']
@@ -30,13 +38,13 @@ def getAppList(textFrame, appLabel):
 
         curLabelName = tk.Label(textFrame, text = description, bg = "white")
         curLabelName.grid(row = cnt, column = 0, sticky = "w")
-        resizeLabel(curLabelName,27*4)
-        curLabelID = tk.Label(textFrame, text = appID, bg = "white", height = 1, width = 12)
-        curLabelID.grid(row = cnt, column = 1, sticky = "ew")
-        resizeLabel(curLabelID,27*4)
-        curLabelThread = tk.Label(textFrame, text = thread, bg = "white", height = 1, width = 12)
-        curLabelThread.grid(row = cnt, column = 2, sticky = "ew")
-        resizeLabel(curLabelThread,27*4)
+        resizeLabel(curLabelName, 30*4)
+        curLabelID = tk.Label(textFrame, text = appID, bg = "white")
+        curLabelID.grid(row = cnt, column = 1, columnspan = 4, sticky = "w")
+        resizeLabel(curLabelID, 30*4)
+        curLabelThread = tk.Label(textFrame, text = thread, bg = "white")
+        curLabelThread.grid(row = cnt, column = 5, columnspan = 4, sticky = "w")
+        resizeLabel(curLabelThread, 30*4)
 
         curLabel = []
         curLabel.append(curLabelName)
