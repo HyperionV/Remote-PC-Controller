@@ -143,16 +143,16 @@ def connect(address):
 def tryConnect(ip):
     return connect(ip)
            
-# while True:
-#     while True:
-#         SERVER = input('Enter host IP: ')
-#         if connect(SERVER):
-#             break
-#     if SERVER == 'exit':
-#         break
-#     start()
-#     print(f'Disconnected from host {SERVER}\n')
-#     client.close()
-#     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+while True:
+    while True:
+        SERVER = input('Enter host IP: ')
+        if connect(SERVER):
+            break
+    if SERVER == 'exit':
+        break
+    start()
+    print(f'Disconnected from host {SERVER}\n')
+    client.close()
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# client.close()
+client.close()

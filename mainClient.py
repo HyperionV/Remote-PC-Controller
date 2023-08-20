@@ -4,6 +4,7 @@ import tkinter as tk
 from client import connect as cc
 from UI import appRunningUI as appui
 from UI import processRunningUI as prui
+from UI import keystrokeUI as ksui
 from tkinter import messagebox
 
 DISCONNECT_MSG = "!DISCONNECT"
@@ -27,10 +28,15 @@ def insert_IP():
         return
     else:
         messagebox.showinfo("Notice", "Connection established!")
-        
+
+def screenshot():
+    cc.send(SCREENSHOT_MSG)
+    screenshot_data = cc.receive_screenshot()
+    cc.display_screenshot(screenshot_data)        
 
 def exit_window():
     cc.send(DISCONNECT_MSG)
+    cc.client.close()
     root.destroy()
     return 0
 
@@ -86,16 +92,17 @@ appRunningButton.grid(row = 3, column = 1, columnspan = 3, sticky = "ew", padx =
 processRunningButton = tk.Button(root, text = "Process Running", command = prui.prototype, height = 3)
 processRunningButton.grid(row = 3, column = 4, columnspan = 3, sticky = "ew", padx = 6)
 
-keystrokeButton = tk.Button(root, text = "Keystroke", height = 3)
+keystrokeButton = tk.Button(root, text = "Keystroke", command = ksui.prototype, height = 3)
 keystrokeButton.grid(row = 5, column = 1, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
 registryButton = tk.Button(root, text = "Fix registry", height = 3)
 registryButton.grid(row = 5, column = 4, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
 
-screenshotButton = tk.Button(root, text = "Screenshot", height = 3)
+screenshotButton = tk.Button(root, text = "Screenshot", command = screenshot, height = 3)
 screenshotButton.grid(row = 7, column = 1, columnspan = 2, sticky = "ew", padx = 6, pady = 5)
 shutdownButton = tk.Button(root, text = "Shutdown", height = 3)
 shutdownButton.grid(row = 7, column = 3, columnspan = 2, sticky = "ew", padx = 6, pady = 5)
 exitButton = tk.Button(root, text = "Exit", height = 3, command = exit_window)
 exitButton.grid(row = 7, column = 5, columnspan = 2, sticky = "ew", padx = 6, pady = 5)
 
+root.protocol("WM_DELETE_WINDOW", exit_window)
 root.mainloop()

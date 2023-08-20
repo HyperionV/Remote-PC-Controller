@@ -59,11 +59,20 @@ def getAppList(textFrame, appLabel):
 
 def killApp(textBox, popup, textFrame, appLabel, canvas):
     ID = str(textBox.get())
+    try:
+        tmp = int(ID)
+    except:
+        messagebox.showerror("Error", "ID must be a number!")
+        return
     cc.send("!KILLAPP")
     cc.send(ID)
-    print(cc.receive())
+    # print(cc.receive())
+    errorMessage = cc.receive()    
     popup.destroy()
-    messagebox.showinfo("Kill app", "Application with id "+ID+" was terminated")
+    if errorMessage[0] == 'E':
+        messagebox.showerror("Error", "Process with id " + ID + " not found!")
+    else:
+        messagebox.showinfo("Kill process", "Process with id " + ID + " was terminated")
     updateAppList(textFrame, appLabel, canvas)
 
 def killAppPopup(textFrame, appLabel, canvas):
@@ -145,8 +154,8 @@ def prototype():
         cur_label = tk.Label(popup, height = 1, width = 1, text = "")
         emptyLabelsRow.append(cur_label)
         cur_label.grid(row = i, column = 0)
-    emptyLabelsCol[0].update()
-    print(emptyLabelsCol[0].winfo_width())
+    # emptyLabelsCol[0].update()
+    # print(emptyLabelsCol[0].winfo_width())
     # Initialize style
     s = ttk.Style()
     # Create style used by default for all Frames

