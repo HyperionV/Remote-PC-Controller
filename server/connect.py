@@ -72,9 +72,10 @@ def getValue(path, value_name):
     
 def setValue(path, value_name, dataType, data):
     try:
+        dataType = toReg(dataType)
         reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
         key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
-        wr.SetValueEx(key, value_name, 0, wr.REG_SZ, data)
+        wr.SetValueEx(key, value_name, 0, dataType, data)
         wr.CloseKey(key)
         wr.CloseKey(reg)
         return True
@@ -83,9 +84,10 @@ def setValue(path, value_name, dataType, data):
     
 def createValue(path, value_name, dataType, data):
     try:
+        dataType = toReg(dataType)
         reg = wr.ConnectRegistry(None, wr.HKEY_CURRENT_USER)
         key = wr.OpenKey(reg, path, 0, wr.KEY_ALL_ACCESS)
-        wr.SetValueEx(key, value_name, 0, wr.REG_SZ, data)
+        wr.SetValueEx(key, value_name, 0, dataType, data)
         wr.CloseKey(key)
         wr.CloseKey(reg)
         return True
@@ -135,13 +137,13 @@ def analyzeRegistry(msg, connection):
         else: 
             send(connection, f'Cannot get value at path {content[1]}')
     elif content[0] == 'SETVAL':
-        returnVal = setValue(content[1], content[2], toReg(content[3]), content[4])
+        returnVal = setValue(content[1], content[2], content[3], content[4])
         if returnVal:
             send(connection, f'Value {content[2]} has been set to {content[4]}')
         else:
             send(connection, f'Error while setting value {content[2]}')
     elif content[0] == 'CREATEVAL':
-        returnVal = createValue(content[1], content[2], toReg(content[3]), content[4])
+        returnVal = createValue(content[1], content[2], content[3], content[4])
         if returnVal:
             send(connection, f'Created value {content[2]}')
         else:
@@ -349,5 +351,5 @@ def start():
         connection, address = server.accept()
         threading.Thread(target=handle_client, args=(connection, address)).start()
 
-print(f"[SERVER START] {socket.gethostbyname(socket.gethostname())}")
-start()
+# print(f"[SERVER START] {socket.gethostbyname(socket.gethostname())}")
+# start()
