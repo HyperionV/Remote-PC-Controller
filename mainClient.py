@@ -5,6 +5,7 @@ from client import connect as cc
 from UI import appRunningUI as appui
 from UI import processRunningUI as prui
 from UI import keystrokeUI as ksui
+from UI import registryUI as regui
 from tkinter import messagebox
 
 DISCONNECT_MSG = "!DISCONNECT"
@@ -94,7 +95,7 @@ processRunningButton.grid(row = 3, column = 4, columnspan = 3, sticky = "ew", pa
 
 keystrokeButton = tk.Button(root, text = "Keystroke", command = ksui.prototype, height = 3)
 keystrokeButton.grid(row = 5, column = 1, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
-registryButton = tk.Button(root, text = "Fix registry", height = 3)
+registryButton = tk.Button(root, text = "Fix registry", command = regui.prototype, height = 3)
 registryButton.grid(row = 5, column = 4, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
 
 screenshotButton = tk.Button(root, text = "Screenshot", command = screenshot, height = 3)
