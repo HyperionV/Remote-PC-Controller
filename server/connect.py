@@ -351,5 +351,5 @@ def start():
         connection, address = server.accept()
         threading.Thread(target=handle_client, args=(connection, address)).start()
 
-print(f"[SERVER START] {socket.gethostbyname(socket.gethostname())}")
-start()
+# print(f"[SERVER START] {socket.gethostbyname(socket.gethostname())}")
+# start()
