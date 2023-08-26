@@ -36,10 +36,14 @@ def screenshot():
     cc.display_screenshot(screenshot_data)        
 
 def exit_window():
-    cc.send(DISCONNECT_MSG)
-    cc.client.close()
+    if(cc.client != None):
+        cc.send(DISCONNECT_MSG)
+        cc.client.close()
     root.destroy()
     return 0
+
+def shutdown():
+    cc.send(SHUTDOWN_MSG)
 
 # def openAppRunningWindow():
 #     popup = tk.Toplevel()
@@ -100,7 +104,7 @@ registryButton.grid(row = 5, column = 4, columnspan = 3, sticky = "ew", padx = 6
 
 screenshotButton = tk.Button(root, text = "Screenshot", command = screenshot, height = 3)
 screenshotButton.grid(row = 7, column = 1, columnspan = 2, sticky = "ew", padx = 6, pady = 5)
-shutdownButton = tk.Button(root, text = "Shutdown", height = 3)
+shutdownButton = tk.Button(root, text = "Shutdown", command = shutdown, height = 3)
 shutdownButton.grid(row = 7, column = 3, columnspan = 2, sticky = "ew", padx = 6, pady = 5)
 exitButton = tk.Button(root, text = "Exit", height = 3, command = exit_window)
 exitButton.grid(row = 7, column = 5, columnspan = 2, sticky = "ew", padx = 6, pady = 5)
