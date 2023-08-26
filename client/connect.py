@@ -25,7 +25,7 @@ def manual():
     print('!KILLAPP: Kill an app with its ID if it is running\n')
     print('!REGISTRY: Perform various super suspicious actions on the registry of the host\'s machine (The datatype of Values are set to REG_SZ, which is a string)')
     print('\t+ GETVAL,[path],[name] - Get content of [name] in [path] \n\t+ SETVAL,[path],[name],,[data] - Set content of [name] in [path] to [data]')
-    print('\t+ CREATEVAL,[path],[name],,[data] - Create a new value, named [name] in [path] with the content [data]\n\t+ DELETEVAL,[path],[name] - Delete value [name] in [path]')
+    print('\t+ CREATEVAL,[path],[name],[dataType],[data] - Create a new value, named [name] in [path] with the content [data]\n\t+ DELETEVAL,[path],[name] - Delete value [name] in [path]')
     print('\t+ CREATEKEY,[path],[name] - Create a new key, named [name] in [path] \n\t+ DELETEKEY,[path],[name] - Delete key [name] in [path]\n')
     print('!PROCESS: Perform actions on the Process feature of the host\'s machine')
     print('\t+ GETPROCESS - Get the list of currently running processes on the host\'s machine')

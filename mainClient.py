@@ -17,6 +17,8 @@ KILLAPP_MSG = "!KILLAPP"
 REGISTRY_MSG = "!REGISTRY"
 PROCESS_MSG = "!PROCESS"
 
+connected = False
+
 def errorConnect():
     messagebox.showerror("Error", "Error connect to server")
 
@@ -28,6 +30,7 @@ def insert_IP():
         errorConnect()
         return
     else:
+        connected = True
         messagebox.showinfo("Notice", "Connection established!")
 
 def screenshot():
@@ -36,7 +39,7 @@ def screenshot():
     cc.display_screenshot(screenshot_data)        
 
 def exit_window():
-    if(cc.client != None):
+    if(connected == True):
         cc.send(DISCONNECT_MSG)
         cc.client.close()
     root.destroy()
