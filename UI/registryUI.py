@@ -67,6 +67,10 @@ def labelControl(functionBox, nameLabel, nameTextbox, valueLabel, valueTextbox, 
     hideLabel(nameLabel, nameTextbox, valueLabel, valueTextbox, datatypeLabel, datatypeBox)
     if option == "Get value":
         showName(nameLabel, nameTextbox)
+    elif option == "Create value":
+        showName(nameLabel, nameTextbox)
+        showValue(valueLabel, valueTextbox)
+        showType(datatypeLabel, datatypeBox)
     elif option == "Set value":
         showName(nameLabel, nameTextbox)
         showValue(valueLabel, valueTextbox)
@@ -92,6 +96,18 @@ def request(functionBox, directoryBox, nameTextbox, valueTextbox, datatypeBox, l
         print(data)
         if data == False:
             addToLog(log, "Fail to receive value\n")
+        else:
+            addToLog(log, data + "\n")
+    elif option == "Create value":
+        name = nameTextbox.get()
+        value = valueTextbox.get()
+        datatype = datatypeBox.get()
+        cmd = "CREATEVAL," + dir + "," + name + "," + datatype + "," + value
+        cc.send(cmd)
+        data = cc.receive()
+        print(data)
+        if data == False:
+            addToLog(log, "Fail to create value\n")
         else:
             addToLog(log, data + "\n")
     elif option == "Set value":
@@ -179,7 +195,7 @@ def prototype():
     dataLabel.grid_forget()
     datatypeBox.grid_forget()
 
-    functionBox = ttk.Combobox(popup, values = ["Choose", "Get value", "Set value", "Delete value", "Create key", "Delete key"], state = "readonly")
+    functionBox = ttk.Combobox(popup, values = ["Choose","Create value" , "Get value", "Set value", "Delete value", "Create key", "Delete key"], state = "readonly")
     functionBox.grid(row = 1, column = 1, columnspan = 13, sticky = "ew")
     functionBox.set("Choose")
 
