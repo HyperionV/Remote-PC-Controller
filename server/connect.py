@@ -320,7 +320,7 @@ def handle_client(connection, address):
         elif msg == GETAPP_MSG:
             sendAppList(connection)
         elif msg == KILLAPP_MSG:
-            app_id = receive(connection)
+            app_id = str(receive(connection))
             killApp(app_id, connection)
         elif msg == SCREENSHOT_MSG:
             sendScreenShot(connection, address)
@@ -352,5 +352,5 @@ def start():
         connection, address = server.accept()
         threading.Thread(target=handle_client, args=(connection, address)).start()
 
-print(f"[SERVER START] {socket.gethostbyname(socket.gethostname())}")
-start()
+# print(f"[SERVER START] {socket.gethostbyname(socket.gethostname())}")
+# start()
