@@ -1,3 +1,3 @@
-from app import *
-from regedit import *
-from processes import *
+import app
+import processes
+import regedit

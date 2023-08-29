@@ -1,5 +1,6 @@
 import subprocess
 import re
+from server import connect
 
 def getAppList():
     cmd = ['powershell', 'gps | where {$_.MainWindowTitle } | select Description,Id,Path,@{Name=\'Threads\';Expression={(Get-Process -Id $_.Id).Threads.Count}}']
@@ -19,9 +20,9 @@ def getAppList():
                 threads = match.group(4)
                 
                 result_dict = {
-                    'description': description,
+                    'description': description.strip(),
                     'app_id': app_id,
-                    'path': path,
+                    'path': path.strip(),
                     'threads': threads
                 }
                 process_list.append(result_dict)
@@ -29,10 +30,19 @@ def getAppList():
                 pass
     return (process_list, len(process_list))
 
-def killApp(app_id):
+def killApp(app_id, connection):
     cmd = f'powershell "Stop-Process -Id {app_id}"'
     try:
         subprocess.run(cmd, shell=True, check=True)
-        return f"App with ID {app_id} has been killed"
+        connect.send(connection, f"App with ID {app_id} has been killed")
     except:
-        return f"Error while killing app with ID {app_id}"
+        connect.send(connection, f"Error while killing app with ID {app_id}")
+
+def sendAppList(connection):
+    processes, list_len = getAppList()
+    connect.send(connection, str(list_len))
+    for item in processes:
+        connect.send(connection, item["description"])
+        connect.send(connection, item["app_id"])
+        connect.send(connection, item["path"])
+        connect.send(connection, item["threads"])

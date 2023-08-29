@@ -3,33 +3,20 @@ import subprocess, signal
 import os
 
 def getProcessList():
-    """Returns a list of all running processes on the system.
-
-    Returns:
-        List: A list of dictionaries containing the process id, name, and number of threads.
-    """
     process_list = []
     for proc in psutil.process_iter(['pid', 'name', 'num_threads']):
         try:
-            # process_info = {
-            #     'pid': proc.info['name']
-            #     'name': proc.name
-            #     'threads': proc.num_threads
-            # }
-            process_list.append(proc.info) # type: ignore
+            process_info = {
+                'pid': proc.info['pid'], # type: ignore
+                'name': proc.info['name'], # type: ignore
+                'threads': proc.info['num_threads'] # type: ignore
+            }
+            process_list.append(process_info)
         except psutil.NoSuchProcess:
             pass
-    return process_list 
+    return (process_list, len(process_list)) 
 
 def killProcess(pid):
-    """Kills a process with the given pid.
-
-    Args:
-        pid (int): The process id of the process to kill.
-
-    Returns:
-        boolean: True if the process was killed, False otherwise.
-    """
     try:
         os.kill(pid, signal.SIGTERM)
         return True
@@ -37,14 +24,6 @@ def killProcess(pid):
         return False
 
 def startProcess(process_name):
-    """Starts a process with the given name. Note: Dont need to provide the full path to the process if it is in the system path.
-
-    Args:
-        process_name (string): The name/path of the process to start.
-
-    Returns:
-        boolean: True if the process was started, False otherwise.
-    """    
     try:
         # Start the executable app in a non-blocking way
         subprocess.Popen([process_name])
