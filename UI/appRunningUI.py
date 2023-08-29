@@ -104,14 +104,17 @@ def startApp(textBox, popup, textFrame, appLabel, canvas):
 
 def startAppPopup(textFrame, appLabel, canvas):
     popup = tk.Toplevel()
+    popup.title("Start App")
     popup_width = 280
-    popup_height = 50
+    popup_height = 65
     popup.geometry(f"{popup_width}x{popup_height}")
 
+    startAppLabel = tk.Label(popup, text = "Enter app name:", height = 1)
+    startAppLabel.grid(row = 0, column = 0, columnspan = 5, sticky = "w", padx = 11, pady = 5)
     textBox = tk.Entry(popup, width = 30)
-    textBox.grid(row = 0, column = 0, padx = 11, pady = 15)
+    textBox.grid(row = 1, column = 0, padx = 11)
     connectButton = tk.Button(popup, text = "Start", width = 7, command = partial(startApp, textBox, popup, textFrame, appLabel, canvas), height = 1)
-    connectButton.grid(row = 0, column = 1, columnspan = 2, padx = 4, pady = 15)
+    connectButton.grid(row = 1, column = 1, columnspan = 2, padx = 4)
 
     popup.mainloop()
 
