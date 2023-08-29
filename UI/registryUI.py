@@ -103,6 +103,7 @@ def request(functionBox, directoryBox, nameTextbox, valueTextbox, datatypeBox, l
         value = valueTextbox.get()
         datatype = datatypeBox.get()
         cmd = "CREATEVAL," + dir + "," + name + "," + datatype + "," + value
+        print(cmd)
         cc.send(cmd)
         data = cc.receive()
         print(data)

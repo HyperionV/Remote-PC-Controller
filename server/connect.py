@@ -42,6 +42,7 @@ def toReg(str):
         return wr.REG_MULTI_SZ
     if(str == "Expandable String"):
         return wr.REG_EXPAND_SZ
+    return wr.REG_SZ
     
 
 def send(connection, msg):
@@ -137,13 +138,13 @@ def analyzeRegistry(msg, connection):
         else: 
             send(connection, f'Cannot get value at path {content[1]}')
     elif content[0] == 'SETVAL':
-        returnVal = setValue(content[1], content[2], content[3], content[4])
+        returnVal = setValue(content[1], content[2], toReg(content[3]), content[4])
         if returnVal:
             send(connection, f'Value {content[2]} has been set to {content[4]}')
         else:
             send(connection, f'Error while setting value {content[2]}')
     elif content[0] == 'CREATEVAL':
-        returnVal = createValue(content[1], content[2], content[3], content[4])
+        returnVal = createValue(content[1], content[2], toReg(content[3]), content[4])
         if returnVal:
             send(connection, f'Created value {content[2]}')
         else:
