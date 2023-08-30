@@ -30,11 +30,7 @@ def getProcessList(textFrame, processLabel):
     cc.send("GETPROCESS")
     processList = cc.receiveProcessList()
     cnt = 0
-    # emptyLabel = tk.Label(textFrame, height = 1)
-    # emptyLabel.grid(row = 0)
 
-    # print(processList)
-    
     emptyLabelsCol = []
     labelString = ""
     for i in range(1, 10):
@@ -49,18 +45,13 @@ def getProcessList(textFrame, processLabel):
 
         curLabelName = tk.Label(textFrame, text = description[:15] + (description[15:] and '..'), bg = "white")
         curLabelName.grid(row = cnt, column = 0, sticky = "w")
-        # resizeLabel(curLabelName, 30*4)
         curLabelID = tk.Label(textFrame, text = processID, bg = "white")
         curLabelID.grid(row = cnt, column = 1, columnspan = 4, sticky = "w")
-        # resizeLabel(curLabelID, 30*4)
         curLabelThread = tk.Label(textFrame, text = thread, bg = "white")
         curLabelThread.grid(row = cnt, column = 5, columnspan = 4, sticky = "w")
-        # resizeLabel(curLabelThread, 30*4)
 
         curLabel = []
         curLabel.append(curLabelName)
-        # curLabel.append(curLabelID)
-        # curLabel.append(curLabelThread)
         processLabel.append(curLabel)
         
         cnt = cnt + 1
@@ -75,7 +66,6 @@ def killProcess(textBox, popup, textFrame, processLabel, canvas):
         return
     cc.send("!PROCESS")
     cc.send("KILLPROCESS," + ID)
-    # print(cc.receive())
     errorMessage = cc.receive()    
     popup.destroy()
     if errorMessage[0] == 'E':
@@ -86,14 +76,17 @@ def killProcess(textBox, popup, textFrame, processLabel, canvas):
 
 def killProcessPopup(textFrame, processLabel, canvas):
     popup = tk.Toplevel()
+    popup.title("Kill Process")
     popup_width = 280
-    popup_height = 50
+    popup_height = 65
     popup.geometry(f"{popup_width}x{popup_height}")
 
+    startAppLabel = tk.Label(popup, text = "Enter process ID:", height = 1)
+    startAppLabel.grid(row = 0, column = 0, columnspan = 5, sticky = "w", padx = 11, pady = 5)
     textBox = tk.Entry(popup, width = 30)
-    textBox.grid(row = 0, column = 0, padx = 11, pady = 15)
+    textBox.grid(row = 1, column = 0, padx = 11)
     connectButton = tk.Button(popup, text = "Kill", width = 7, command = partial(killProcess, textBox, popup, textFrame, processLabel, canvas), height = 1)
-    connectButton.grid(row = 0, column = 1, columnspan = 2, padx = 4, pady = 15)
+    connectButton.grid(row = 1, column = 1, columnspan = 2, padx = 4)
 
     popup.mainloop()
 
@@ -112,14 +105,17 @@ def startProcess(textBox, popup, textFrame, processLabel, canvas):
 
 def startProcessPopup(textFrame, processLabel, canvas):
     popup = tk.Toplevel()
+    popup.title("Start Process")
     popup_width = 280
-    popup_height = 50
+    popup_height = 65
     popup.geometry(f"{popup_width}x{popup_height}")
 
+    startAppLabel = tk.Label(popup, text = "Enter process name:", height = 1)
+    startAppLabel.grid(row = 0, column = 0, columnspan = 5, sticky = "w", padx = 11, pady = 5)
     textBox = tk.Entry(popup, width = 30)
-    textBox.grid(row = 0, column = 0, padx = 11, pady = 15)
+    textBox.grid(row = 1, column = 0, padx = 11)
     connectButton = tk.Button(popup, text = "Start", width = 7, command = partial(startProcess, textBox, popup, textFrame, processLabel, canvas), height = 1)
-    connectButton.grid(row = 0, column = 1, columnspan = 2, padx = 4, pady = 15)
+    connectButton.grid(row = 1, column = 1, columnspan = 2, padx = 4)
 
     popup.mainloop()
 
@@ -162,18 +158,10 @@ def prototype():
         cur_label = tk.Label(popup, height = 1, width = 1, text = "")
         emptyLabelsRow.append(cur_label)
         cur_label.grid(row = i, column = 0)
-    # emptyLabelsCol[0].update()
-    # print(emptyLabelsCol[0].winfo_width())
     # Initialize style
     s = ttk.Style()
     # Create style used by default for all Frames
     s.configure('TFrame', background='white')
-
-    # emptyLabel_b = tk.Label(popup, width = 1)
-    # emptyLabel_b.grid(row = 2)
-
-    # textFrame = tk.Frame(popup, bg = "white", highlightbackground = "black", highlightcolor = "black", highlightthickness = 1)
-    # textFrame = textFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 15, sticky = "nsew")
 
     # Create a frame for the canvas with non-zero row&column weights
     frame_canvas = tk.Frame(popup, relief = "solid", borderwidth = 1)
@@ -200,10 +188,6 @@ def prototype():
     titleFrame = tk.Frame(popup, bg = "white", highlightbackground = "black", highlightcolor = "black", highlightthickness = 1)
     titleFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 1, sticky = "nsew")
     
-
-    # titleFrame = ttk.Frame(popup, borderwidth = 1, relief="solid")
-    # titleFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 1, sticky = "nsew")
-
     buttonStyle = "groove"
     killButton = tk.Button(popup, text = "Kill", height = 3, command = partial(killProcessPopup, textFrame, processLabel, canvas), relief = buttonStyle)
     killButton.grid(row = 1, column = 1, columnspan = 3, sticky = "ew", padx = 6, pady = 5)
@@ -228,4 +212,3 @@ def prototype():
 
     popup.mainloop()
 
-# prototype() 

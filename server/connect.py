@@ -130,7 +130,6 @@ def deleteKey(path, delKey):
 
 def analyzeRegistry(msg, connection):
     content = msg.split(',')
-    # print(content)
     if content[0] == 'GETVAL':
         returnVal = getValue(content[1], content[2])
         if returnVal:
@@ -271,7 +270,6 @@ def getAppList():
     
     for line in proc.stdout.splitlines():
         line = line.strip()
-        # print(line)
         pattern = r'(.+?)\s+(\d+)\s+(.+)\s+(\d+)'
         match = re.match(pattern, line)
         if line:
@@ -308,7 +306,6 @@ def sendAppList(connection):
         send(connection, item["app_id"])
         send(connection, item["path"])
         send(connection, item["threads"])
-    # print("Done sending")
 
 def handle_client(connection, address):
     print(f"New connection initialized - {address}.")

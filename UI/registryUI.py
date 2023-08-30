@@ -10,24 +10,6 @@ from client import connect as cc
 global state
 state = False
 
-# def manual():
-#     print('\n---------MANUAL FOR TESTING---------')
-#     print('!DISCONNECT: Disconnect from host\n')
-#     print('!SCREENSHOT: Request screenshot from host\n')
-#     print('!SHUTDOWN: Power off host machine (?!!)\n')
-#     print('!KEYLOG: Activate keylogger on host machine\n\t+ This command will activate keylogger if used once and deactivate if used twice, the result will then be printed on the client side\n')
-#     print('!GETAPP: Get the list of currently running application on the host\'s machine\n')
-#     print('!KILLAPP: Kill an app with its ID if it is running\n')
-#     print('!REGISTRY: Perform various super suspicious actions on the registry of the host\'s machine (The datatype of Values are set to REG_SZ, which is a string)')
-#     print('\t+ GETVAL,[path],[name] - Get content of [name] in [path] \n\t+ SETVAL,[path],[name],,[data] - Set content of [name] in [path] to [data]')
-#     print('\t+ CREATEVAL,[path],[name],[dataType],[data] - Create a new value, named [name] in [path] with the content [data]\n\t+ DELETEVAL,[path],[name] - Delete value [name] in [path]')
-#     print('\t+ CREATEKEY,[path],[name] - Create a new key, named [name] in [path] \n\t+ DELETEKEY,[path],[name] - Delete key [name] in [path]\n')
-#     print('!PROCESS: Perform actions on the Process feature of the host\'s machine')
-#     print('\t+ GETPROCESS - Get the list of currently running processes on the host\'s machine')
-#     print('\t+ STARTPROCESS,[name/path] - Start a new process with [name] or [path]\n\t+ KILLPROCESS,[pid] - Kill a process with [pid]')
-#     print('-------------------------------------------')
-#     print('**This godforsaken program is definitely not a Trojan and will not break anyone\'s machine in any possible way, 100% safe for kids and Weebs\n')
-
 def addToLog(log, text):
     log.config(state = "normal")
     log.insert("end", text)
@@ -165,16 +147,11 @@ def prototype():
 
     emptyLabelsCol = []
     emptyLabelsRow = []
-    # labelString = "label"
     for i in range(30):
         cur_label = tk.Label(popup, height = 1, width = 3, text = "")
         emptyLabelsCol.append(cur_label)
         cur_label.grid(row = 0, column = i)
-    # for i in range(20):
-    #     cur_label = tk.Label(popup, height = 1, width = 1, text = "")
-    #     emptyLabelsRow.append(cur_label)
-    #     cur_label.grid(row = i, column = 0)
-    
+
     
     nameLabelText = "Name:"
     nameLabel = tk.Label(popup, text = nameLabelText)
@@ -202,9 +179,6 @@ def prototype():
 
     functionBox.bind("<<ComboboxSelected>>", partial(labelControl, functionBox, nameLabel, nameTextBox, valueLabel, valueTextBox, dataLabel, datatypeBox))
 
-    # emptyLabel_b = tk.Label(popup, width = 1, height = 1)
-    # emptyLabel_b.grid(row = 2, column = 1)
-
     directoryText = "Directory:"
     directoryLabel = tk.Label(popup, text = directoryText, pady = 2)
     directoryLabel.grid(row = 2, column = 1, columnspan = 3, sticky = "w", pady = 2)
@@ -215,7 +189,6 @@ def prototype():
     logLabel.grid(row = 6, column = 1, columnspan = 3, sticky = "w", pady = 2)
     
     logtext = tk.Text(popup, width = 40, height = 7, wrap = "word", highlightbackground = "gray", highlightcolor = "gray", background = "gray90", highlightthickness = 1, state = "disabled")
-    # logtext = tk.Text(popup, width = 40, height = 7, wrap = "word", highlightbackground = "gray", highlightcolor = "gray", highlightthickness = 1, state = "disabled")
     logtext.grid(row = 7, column = 1, columnspan = 13, sticky = "nsew", pady = 2)
     
     sendButton = tk.Button(popup, text = "Request", command=partial(request, functionBox, directoryBox, nameTextBox, valueTextBox, datatypeBox, logtext))
@@ -223,4 +196,3 @@ def prototype():
 
     popup.mainloop()
 
-# prototype() 

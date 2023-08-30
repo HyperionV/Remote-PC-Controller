@@ -1,7 +1,5 @@
 import tkinter as tk
 import threading
-# import sys
-# sys.path.append('../')
 from server import connect as sc
 from UI import appRunningUI as appui
 from UI import processRunningUI as prui
@@ -28,14 +26,6 @@ def launch(textLabel):
     thread.start()
     textLabel.config(text = "Server IP: " + IP)
     textLabel.grid(row = 1, column = 1, columnspan = 7, sticky = "w")
-
-# def openAppRunningWindow():
-#     popup = tk.Toplevel()
-#     popup_width = 496
-#     popup_height = 279
-#     popup.geometry(f"{popup_width}x{popup_height}")
-
-    # popup.mainloop()
 
 root = tk.Tk()
 root.title("Server")

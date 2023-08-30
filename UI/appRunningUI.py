@@ -22,9 +22,6 @@ def getAppList(textFrame, appLabel):
     cc.send("!GETAPP")
     appList = cc.receiveAppList()
     cnt = 0
-    # emptyLabel = tk.Label(textFrame, height = 1)
-    # emptyLabel.grid(row = 0)
-
     print(appList)
     
     emptyLabelsCol = []
@@ -51,8 +48,6 @@ def getAppList(textFrame, appLabel):
 
         curLabel = []
         curLabel.append(curLabelName)
-        # curLabel.append(curLabelID)
-        # curLabel.append(curLabelThread)
         appLabel.append(curLabel)
         
         cnt = cnt + 1
@@ -66,7 +61,6 @@ def killApp(textBox, popup, textFrame, appLabel, canvas):
         return
     cc.send("!KILLAPP")
     cc.send(ID)
-    # print(cc.receive())
     errorMessage = cc.receive()    
     popup.destroy()
     if errorMessage[0] == 'E':
@@ -77,14 +71,18 @@ def killApp(textBox, popup, textFrame, appLabel, canvas):
 
 def killAppPopup(textFrame, appLabel, canvas):
     popup = tk.Toplevel()
+    popup.title("Kill App")
     popup_width = 280
-    popup_height = 50
+    popup_height = 65
     popup.geometry(f"{popup_width}x{popup_height}")
 
+
+    killAppLabel = tk.Label(popup, text = "Enter app ID to kill:", height = 1)
+    killAppLabel.grid(row = 0, column = 0, columnspan = 5, sticky = "w", padx = 11, pady = 5)
     textBox = tk.Entry(popup, width = 30)
-    textBox.grid(row = 0, column = 0, padx = 11, pady = 15)
+    textBox.grid(row = 1, column = 0, padx = 11)
     connectButton = tk.Button(popup, text = "Kill", width = 7, command = partial(killApp, textBox, popup, textFrame, appLabel, canvas), height = 1)
-    connectButton.grid(row = 0, column = 1, columnspan = 2, padx = 4, pady = 15)
+    connectButton.grid(row = 1, column = 1, columnspan = 2, padx = 4)
 
     popup.mainloop()
 
@@ -157,18 +155,10 @@ def prototype():
         cur_label = tk.Label(popup, height = 1, width = 1, text = "")
         emptyLabelsRow.append(cur_label)
         cur_label.grid(row = i, column = 0)
-    # emptyLabelsCol[0].update()
-    # print(emptyLabelsCol[0].winfo_width())
     # Initialize style
     s = ttk.Style()
     # Create style used by default for all Frames
     s.configure('TFrame', background='white')
-
-    # emptyLabel_b = tk.Label(popup, width = 1)
-    # emptyLabel_b.grid(row = 2)
-
-    # textFrame = tk.Frame(popup, bg = "white", highlightbackground = "black", highlightcolor = "black", highlightthickness = 1)
-    # textFrame = textFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 15, sticky = "nsew")
 
     # Create a frame for the canvas with non-zero row&column weights
     frame_canvas = tk.Frame(popup, relief = "solid", borderwidth = 1)
@@ -195,10 +185,6 @@ def prototype():
     titleFrame = tk.Frame(popup, bg = "white", highlightbackground = "black", highlightcolor = "black", highlightthickness = 1)
     titleFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 1, sticky = "nsew")
     
-
-    # titleFrame = ttk.Frame(popup, borderwidth = 1, relief="solid")
-    # titleFrame.grid(row = 3, column = 1, columnspan = 12, rowspan = 1, sticky = "nsew")
-
     buttonStyle = "groove"
     killButton = tk.Button(popup, text = "Kill", height = 3, command = partial(killAppPopup, textFrame, appLabel, canvas), relief = buttonStyle)
     killButton.grid(row = 1, column = 1, columnspan = 3, sticky = "ew", padx = 6, pady = 5)

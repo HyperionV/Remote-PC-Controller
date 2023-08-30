@@ -1,6 +1,4 @@
 import tkinter as tk
-# import sys
-# sys.path.append('../')
 from client import connect as cc
 from UI import appRunningUI as appui
 from UI import processRunningUI as prui
@@ -24,7 +22,6 @@ def errorConnect():
 
 def insert_IP():
     IP = str(textBox.get())
-    # messagebox.showinfo("Notice", "Connecting to server ...")
     if cc.tryConnect(IP) == False:
         print("error connect\n")
         errorConnect()
@@ -47,14 +44,6 @@ def exit_window():
 
 def shutdown():
     cc.send(SHUTDOWN_MSG)
-
-# def openAppRunningWindow():
-#     popup = tk.Toplevel()
-#     popup_width = 496
-#     popup_height = 279
-#     popup.geometry(f"{popup_width}x{popup_height}")
-
-    # popup.mainloop()
 
 root = tk.Tk()
 root.title("Client")
